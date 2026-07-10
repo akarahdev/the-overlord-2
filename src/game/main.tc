@@ -14,7 +14,6 @@ process game_loop {
     repeat {
         if(plot_data_stale == 1 && game.ticksSinceStartup % 60 == 5) {
             send_plot_data();
-            plot_data_stale = 0;
         }
         wait(1);
     }

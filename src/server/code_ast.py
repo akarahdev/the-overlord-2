@@ -12,3 +12,10 @@ Actions = SayMessage
 @dataclass
 class Program(BaseModel):
     actions: list[Actions]
+
+functions = [
+    {
+        "function": "say_message",
+        "description": "Sends a message to the chat."
+    }
+]
