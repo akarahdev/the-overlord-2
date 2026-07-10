@@ -1,3 +1,13 @@
+gameevent startup {
+    declare global web_url = "http://4.tcp.ngrok.io:22799";
+}
+
 playerevent join {
     player.sendMessage(s"Hello " + player.name);
+}
+
+playerevent command {
+    player.sendMessage(
+        get_direct_llm_response(game.eventCommand)
+    );
 }

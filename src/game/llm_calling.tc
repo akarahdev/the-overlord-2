@@ -1,0 +1,17 @@
+
+function get_direct_llm_response(prompt: str): dict {
+    line response: dict = workaround_web_request(web_url + "/simple_prompt", prompt);
+    return response;
+}
+
+// this is needed because teerracotta beta bug
+function workaround_web_request(web_url: str, prompt: str): dict {
+    var.getWebResponse(
+        web_url,
+        prompt,
+        codeFlow = "Synchronous",
+        method = "Post",
+        contentType = "application/json"
+    );
+    return line "@__TC_TMP_0" as dict;
+}
