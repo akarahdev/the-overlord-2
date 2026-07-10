@@ -1,0 +1,14 @@
+function execute_actions(actions: list[dict]) {
+    for(line action of actions) {
+        execute_node(action);
+    }
+}
+
+function execute_node(action: dict): any {
+    line result;
+    line type = action["type"] as str;
+    if(type == "say_message") {
+        allPlayers.sendMessage(s"<red>The Overlord<gray>: <white>" + action["message"]);
+    }
+    return result;
+}
