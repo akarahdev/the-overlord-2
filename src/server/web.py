@@ -3,11 +3,36 @@ import code_ast
 import llm
 import json
 from dataclasses import asdict
+from typing import Any
 
 app = Flask(__name__)
 
+class PlotData:
+    players: list[str] = []
+    chat_logs: list[Any] = []
+
+    def __str__(self) -> str:
+        return f"""
+        Data of the plot is below.
+
+        Online Players: {self.players}
+        Previous chat messages: {self.chat_logs}
+        """
+
+plot_data = PlotData()
+
+@app.post("/update_data")
+def update_data():
+    global plot_data
+    plot_data = PlotData()
+    plot_data.__dict__.update(request.json)
+    print(plot_data)
+    return ""
+
+
 @app.post("/simple_prompt")
 def simple_prompt():
+    global plot_data
     llm_response = llm.ai_client.responses.parse(
         model=llm.model,
         reasoning={"effort": "none"},
@@ -15,6 +40,10 @@ def simple_prompt():
             {
                 "role": "developer",
                 "content": llm.system_prompt
+            },
+            {
+                "role": "developer",
+                "content": str(plot_data)
             },
             {
                 "role": "user",

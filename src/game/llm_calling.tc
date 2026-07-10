@@ -1,3 +1,17 @@
+playerevent command {
+    line command = game.eventCommand;
+    line response = get_direct_llm_response("%default asks " + command);
+    line json = response["json"] as dict;
+    line actions = json["actions"];
+    print(actions);
+    allPlayers.sendMessage(s"<green>%default <gray>asked... <white>%var(command)");
+    chat_logs.append({"player": "%default", "ai_request": command});
+    if(var.isType(actions, type="List")) {
+        execute_actions(actions as list[dict]);
+    } else {
+        execute_node(actions as dict);
+    }
+}
 
 function get_direct_llm_response(prompt: str): dict {
     line response: dict = workaround_web_request(web_url + "/simple_prompt", prompt);

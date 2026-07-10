@@ -9,6 +9,7 @@ function execute_node(action: dict): any {
     line type = action["type"] as str;
     if(type == "say_message") {
         allPlayers.sendMessage(s"<red>The Overlord<gray>: <white>" + action["message"]);
+        chat_logs.append({"player": "The Overlord", "ai_response": action["message"]});
     }
     return result;
 }

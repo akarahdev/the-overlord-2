@@ -1,21 +1,21 @@
 gameevent startup {
     declare global web_url = "http://4.tcp.ngrok.io:22799";
+    declare global plot_data_stale = 0;
+
+    start game_loop();
 }
 
 playerevent join {
     player.sendMessage(s"Hello " + player.name);
+    plot_data_stale = 1;
 }
 
-playerevent command {
-    line command = game.eventCommand;
-    line response = get_direct_llm_response(command);
-    line json = response["json"] as dict;
-    line actions = json["actions"];
-    print(actions);
-    allPlayers.sendMessage(s"<green>%default <gray>asked... <white>%var(command)");
-    if(var.isType(actions, type="List")) {
-        execute_actions(actions as list[dict]);
-    } else {
-        execute_node(actions as dict);
+process game_loop {
+    repeat {
+        if(plot_data_stale == 1 && game.ticksSinceStartup % 60 == 5) {
+            send_plot_data();
+            plot_data_stale = 0;
+        }
+        wait(1);
     }
 }
