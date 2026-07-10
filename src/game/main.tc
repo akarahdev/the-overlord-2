@@ -1,0 +1,3 @@
+playerevent join {
+    player.sendMessage(s"Hello " + player.name);
+}

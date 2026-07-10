@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "terracotta",
+            "request": "launch",
+            "name": "Compile Project",
+            "folder": "${workspaceFolder}",
+            "exportMode": "sendToMinecraft",
+            "autoSwitchToDev": true,
+            "autoSwitchToPlay": true,
+            "plotSize": 50
+        }
+    ]
+}
