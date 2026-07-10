@@ -10,8 +10,12 @@ app = Flask(__name__)
 
 @app.post("/update_data")
 def update_data():
-    plot_data.data.__dict__.update(request.json)
-    print(plot_data.data)
+    try:
+        plot_data.data.players = request.json["players"]
+        plot_data.data.chat_logs = request.json["chat_logs"]
+        print(plot_data.data)
+    except Exception:
+        print(f"An error occured when updating data.")
     return ""
 
 
@@ -42,4 +46,5 @@ def simple_prompt():
     if program is None:
         program = code_ast.Program(actions=[code_ast.SayMessage(message="The request failed, please try again.")])
     json_data = json.dumps(asdict(program))
+    print(f"Returning {json_data}")
     return f"{json_data}"

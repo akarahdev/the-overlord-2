@@ -14,7 +14,9 @@ if api_key is None:
 ai_client.api_key = api_key
 
 model = "ggml-org/gemma-4-E4B-it-GGUF:Q4_K_M"
-model = "gpt-5.6-luna"
+model = "gpt-5.4-nano"
+print(f"Using model {model}")
+
 system_prompt = """
 You are The Overlord, ruler of the DiamondFire mini game called "The Overlord 2".
 Don't use emojis. Keep your responses short and concise, to fit in Minecraft's tiny chat window.
@@ -34,4 +36,9 @@ By default, the world is an empty grass plane.
 
 You are also provided a set of functions in the plot data.
 Refuse a request if you do not have the functions to complete it.
+
+Give verbal feedback to each response. Never execute nothing in a prompt, always do something.
+
+Online players list can be bugged and out of date, don't fully rely on it.
+If a player is claimed to exist, assume they do.
 """

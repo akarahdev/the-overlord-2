@@ -5,11 +5,71 @@ function execute_actions(actions: list[dict]) {
 }
 
 function execute_node(action: dict): any {
-    line result;
     line type = action["type"] as str;
     if(type == "say_message") {
         allPlayers.sendMessage(s"<red>The Overlord<gray>: <white>" + action["message"]);
         chat_logs.append({"player": "The Overlord", "ai_response": action["message"]});
+        return 0;
     }
-    return result;
+    if(type == "teleport") {
+        line selection = execute_node(action["selection"] as dict) as list[str];
+        line location = execute_node(action["location"] as dict) as loc;
+        select playersByName(selection);
+        selected.teleport(location);
+        select nothing;
+        select entitiesByName(selection);
+        selectedEntity.teleport(location);
+        select nothing;
+        return 0;
+    }
+    if(type == "players/all") {
+        return game.plotPlayerUUIDs;
+    }
+    if(type == "players/by_name") {
+        select playersByName(action["name"] as str);
+        line players = game.selectionTargetUUIDs;
+        select nothing;
+        return players;
+    }
+    if(type == "entities/all") {
+        select allEntities;
+        line entities = game.selectionTargetUUIDs;
+        select nothing;
+        return entities;
+    }
+    if(type == "selection/location") {
+        line selection = execute_node(action["selection"] as dict) as list[str];
+        if(game.hasEntitiesWithUUID(selection)) {
+            select entitiesByUUID(selection);
+            line pos = selected.location;
+            select nothing;
+            return pos;
+        } else {
+            select playersByName(selection);
+            line pos = selected.location;
+            select nothing;
+            return pos;
+        }
+    }
+    if(type == "selection/damage") {
+        line selection = execute_node(action["selection"] as dict) as list[str];
+        if(game.hasEntitiesWithUUID(selection)) {
+            select entitiesByUUID(selection);
+            selectedEntity.damage(action["amount"] as num);
+            select nothing;
+        } else {
+            select playersByName(selection);
+            selected.damage(action["amount"] as num);
+            select nothing;
+        }
+    }
+    if(type == "location") {
+        return loc(
+            action["x"] as num,
+            action["y"] as num,
+            action["z"] as num,
+            action["pitch"] as num,
+            action["yaw"] as num,
+        );
+    }
 }
