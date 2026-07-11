@@ -46,5 +46,6 @@ def simple_prompt():
     if program is None:
         program = code_ast.Program(actions=[code_ast.SayMessage(message="The request failed, please try again.")])
     json_data = json.dumps(asdict(program))
-    print(f"Returning {json_data}")
+    pretty_json = json.dumps(asdict(program), indent=4)
+    print(pretty_json)
     return f"{json_data}"

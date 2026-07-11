@@ -72,4 +72,10 @@ function execute_node(action: dict): any {
             action["yaw"] as num,
         );
     }
+    if(type == "world/set_block") {
+        line location = execute_node(action["location"] as dict) as loc;
+        line block_id = action["block_id"] as str;
+        block_id = block_id.replace("minecraft:", "");
+        game.setBlock(item(block_id), location);
+    }
 }

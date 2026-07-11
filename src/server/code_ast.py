@@ -37,7 +37,6 @@ class SelectionLocation(BaseModel):
 
 LocationType = Union[Location, SelectionLocation]
 
-
 @dataclass
 class SayMessage(BaseModel):
     type: Literal["say_message"] = "say_message"
@@ -50,12 +49,18 @@ class Teleport(BaseModel):
     location: LocationType
 
 @dataclass
-class DamageSelection(BaseModel):
+class ApplyDamage(BaseModel):
     type: Literal["selection/damage"] = "selection/damage"
     selection: GenericSelectionType
     amount: float
 
-Actions = Union[SayMessage, Teleport, DamageSelection]
+@dataclass
+class SetBlock(BaseModel):
+    type: Literal["world/set_block"] = "world/set_block"
+    location: LocationType
+    block_id: str
+
+Actions = Union[SayMessage, Teleport, ApplyDamage, SetBlock]
 
 @dataclass
 class Program(BaseModel):
@@ -89,5 +94,9 @@ functions = [
     {
         "function": "selection/damage",
         "description": "Apply damage to a selection." 
+    },
+    {
+        "function": "set_block",
+        "description": "Set a block in the world at a location." 
     }
 ]

@@ -1,5 +1,5 @@
 gameevent startup {
-    declare global web_url = "http://4.tcp.ngrok.io:22799";
+    declare global web_url = "http://8.tcp.ngrok.io:13405";
     declare global plot_data_stale = 0;
 
     start game_loop();
