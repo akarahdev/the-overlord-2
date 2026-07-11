@@ -1,6 +1,23 @@
 playerevent command {
+    if(player.hasPlotPermission(permission = "Owner")) {
+        if(game.commandArgumentEquals("model", 1)) {
+            global "%default model" = game.eventCommandArguments[2];
+            player.sendMessage(s"<gray>Set your model to <green>%var(%default model)<gray>.");
+            return;
+        }
+        if(game.commandArgumentEquals("reasoning_effort", 1)) {
+            global "%default reasoning_effort" = game.eventCommandArguments[2];
+            player.sendMessage(s"<gray>Set your reasoning effort to <green>%var(%default reasoning_effort)<gray>.");
+            return;
+        }
+    }
+
     line command = game.eventCommand;
-    line response = get_direct_llm_response("%default says " + command);
+    line response = get_direct_llm_response(
+        "%default says " + command, 
+        global "%default model" as str, 
+        global "%default reasoning_effort" as str
+    );
     line json = response["json"] as dict;
     line actions = json["actions"];
     print(actions);
@@ -13,8 +30,21 @@ playerevent command {
     }
 }
 
-function get_direct_llm_response(prompt: str): dict {
-    line response: dict = workaround_web_request(web_url + "/simple_prompt", prompt);
+function get_direct_llm_response(
+    prompt: str, 
+    model: str,
+    reasoning_effort: str
+): dict {
+    line json = var.toJSON({
+        "user_request": prompt,
+        "reasoning_effort": reasoning_effort,
+        "model": model
+    });
+    print(json);
+    line response: dict = workaround_web_request(
+        web_url + "/simple_prompt", 
+        json
+    );
     return response;
 }
 

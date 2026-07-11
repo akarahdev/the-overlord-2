@@ -22,9 +22,13 @@ def update_data():
 @app.post("/simple_prompt")
 def simple_prompt():
     global plot_data
+
+    inputs = request.get_json()
+    print(f"inputs: {inputs}")
+
     llm_response = llm.ai_client.responses.parse(
-        model=llm.model,
-        reasoning={"effort": "none"},
+        model=inputs["model"],
+        reasoning={"effort": inputs["reasoning_effort"]},
         input=[
             {
                 "role": "developer",
@@ -36,7 +40,7 @@ def simple_prompt():
             },
             {
                 "role": "user",
-                "content": str(request.get_data())
+                "content": str(inputs["user_request"])
             }
         ],
         text_format=code_ast.Program
@@ -49,3 +53,20 @@ def simple_prompt():
     pretty_json = json.dumps(asdict(program), indent=4)
     print(pretty_json)
     return f"{json_data}"
+
+@app.errorhandler(400)
+def handle_bad_request(e): # type: ignore
+    # Print the exact parsing description from Flask/Werkzeug
+    print(f"--- 400 Error Description: {e.description} ---") # type: ignore
+    
+    # Inspect query parameters (?key=value)
+    print(f"URL Args: {request.args}")
+    
+    # Inspect form data
+    print(f"Form Data: {request.form}")
+    
+    # Inspect raw data strings safely
+    raw_data = request.get_data(as_text=True)
+    print(f"Raw Request Body: {raw_data}")
+
+    return "400 occurred, check console :("

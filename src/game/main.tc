@@ -8,6 +8,9 @@ gameevent startup {
 playerevent join {
     player.sendMessage(s"Hello " + player.name);
     plot_data_stale = 1;
+
+    declare global "%default model" = "gpt-5.4-nano";
+    declare global "%default reasoning_effort" = "none";
 }
 
 process game_loop {
