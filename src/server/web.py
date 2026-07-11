@@ -3,7 +3,6 @@ import code_ast
 import llm
 import json
 import plot_data
-from dataclasses import asdict
 
 app = Flask(__name__)
 
@@ -49,8 +48,9 @@ def simple_prompt():
     program = llm_response.output_parsed
     if program is None:
         program = code_ast.Program(actions=[code_ast.SayMessage(message="The request failed, please try again.")])
-    json_data = json.dumps(asdict(program))
-    pretty_json = json.dumps(asdict(program), indent=4)
+    program_data = program.model_dump(mode="json")
+    json_data = json.dumps(program_data)
+    pretty_json = json.dumps(program_data, indent=4)
     print(pretty_json)
     return f"{json_data}"
 

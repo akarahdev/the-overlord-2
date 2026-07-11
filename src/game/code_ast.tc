@@ -4,6 +4,30 @@ function execute_actions(actions: list[dict]) {
     }
 }
 
+function execute_node_from_json(action: str): any {
+    return execute_node(var.fromJSON(action) as dict);
+}
+
+function execute_actions_from_json(action: str) {
+    execute_actions(var.fromJSON(action) as list[dict]);
+}
+
+function vec_to_loc(vector: vec): loc {
+    return loc(
+        vector.getComponent(comp = "X"),
+        vector.getComponent(comp = "Y"),
+        vector.getComponent(comp = "Z")
+    );
+}
+
+function loc_to_vec(location: loc): vec {
+    return vec(
+        location.getCoordinate(coord = "X"),
+        location.getCoordinate(coord = "Y"),
+        location.getCoordinate(coord = "Z")
+    );
+}
+
 function execute_node(action: dict): any {
     line type = action["type"] as str;
     if(type == "say_message") {
@@ -11,14 +35,14 @@ function execute_node(action: dict): any {
         chat_logs.append({"player": "The Overlord", "ai_response": action["message"]});
         return 0;
     }
-    if(type == "teleport") {
+    if(type == "selection/teleport") {
         line selection = execute_node(action["selection"] as dict) as list[str];
-        line location = execute_node(action["location"] as dict) as loc;
+        line location = vec_to_loc(execute_node(action["location"] as dict) as vec);
         select playersByName(selection);
         selected.teleport(location);
         select nothing;
         select entitiesByName(selection);
-        selectedEntity.teleport(location);
+        selectedEntity.teleport(location, keepRot = "True");
         select nothing;
         return 0;
     }
@@ -37,16 +61,30 @@ function execute_node(action: dict): any {
         select nothing;
         return entities;
     }
-    if(type == "selection/location") {
+    if(type == "selection/position") {
         line selection = execute_node(action["selection"] as dict) as list[str];
         if(game.hasEntitiesWithUUID(selection)) {
             select entitiesByUUID(selection);
-            line pos = selected.location;
+            line pos = loc_to_vec(selected.location);
             select nothing;
             return pos;
         } else {
             select playersByName(selection);
-            line pos = selected.location;
+            line pos = loc_to_vec(selected.location);
+            select nothing;
+            return pos;
+        }
+    }
+    if(type == "selection/direction") {
+        line selection = execute_node(action["selection"] as dict) as list[str];
+        if(game.hasEntitiesWithUUID(selection)) {
+            select entitiesByUUID(selection);
+            line pos = selected.direction;
+            select nothing;
+            return pos;
+        } else {
+            select playersByName(selection);
+            line pos = selected.direction;
             select nothing;
             return pos;
         }
@@ -63,19 +101,48 @@ function execute_node(action: dict): any {
             select nothing;
         }
     }
-    if(type == "location") {
-        return loc(
+    if(type == "vec3") {
+        return vec(
             action["x"] as num,
             action["y"] as num,
-            action["z"] as num,
-            action["pitch"] as num,
-            action["yaw"] as num,
+            action["z"] as num
         );
     }
+    if(type == "vec3/shifted") {
+        line base = execute_node(action["base"] as dict) as vec;
+        line offset = execute_node(action["shift_by"] as dict) as vec;
+        line new_vec = base.add(offset);
+        return new_vec;
+    }
+    if(type == "vec3/scaled") {
+        line base = execute_node(action["base"] as dict) as vec;
+        line scale = action["scale"] as num;
+        line new_vec = base.multiply(scale);
+        return new_vec;
+    }
     if(type == "world/set_block") {
-        line location = execute_node(action["location"] as dict) as loc;
+        line location = vec_to_loc(execute_node(action["location"] as dict) as vec);
         line block_id = action["block_id"] as str;
         block_id = block_id.replace("minecraft:", "");
         game.setRegion(item(block_id), location, location);
+    }
+    if(type == "selection/give_item") {
+        line selection = execute_node(action["selection"] as dict) as list[str];
+        line item_id = action["item_id"] as str;
+        line on_right_click = var.toJSON(action["on_right_click"] as dict);
+
+        line item_instance = item(item_id.replace("minecraft:", ""));
+        item_instance = item_instance.setTag("on_right_click", on_right_click);
+
+        select playersByName(selection);
+        selected.giveItems(item_instance);
+        select nothing;
+    }
+}
+
+playerevent rightClick {
+    line held_item = game.eventItem;
+    if(held_item.hasTag("on_right_click")) {
+        execute_actions_from_json(held_item.getTag("on_right_click") as str);
     }
 }

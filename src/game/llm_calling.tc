@@ -20,7 +20,6 @@ playerevent command {
     );
     line json = response["json"] as dict;
     line actions = json["actions"];
-    print(actions);
     allPlayers.sendMessage(s"<green>%default<gray>: <white>%var(command)");
     chat_logs.append({"player": "%default", "ai_request": command});
     if(var.isType(actions, type="List")) {
@@ -40,7 +39,6 @@ function get_direct_llm_response(
         "reasoning_effort": reasoning_effort,
         "model": model
     });
-    print(json);
     line response: dict = workaround_web_request(
         web_url + "/simple_prompt", 
         json
